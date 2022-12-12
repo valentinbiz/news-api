@@ -2,56 +2,38 @@
 
 ## Background
 
-We will be building an API for the purpose of accessing application data programmatically. The intention here is to mimic the building of a real world backend service (such as reddit) which should provide this information to the front end architecture.
+The purpose of this API is to provide the user with access to a news platform (a bigger and better Reddit). Some of the FUNctionality includes accessing different news article (in bulk or based on specific topics), comments on articles and user data. This is a work in progress and this README will be updated accordingly as the API is being developed...
 
-Your database will be PSQL, and you will interact with it using [node-postgres](https://node-postgres.com/).
+---
 
-## Kanban
+### Initial setup
 
-### Link to your Trello Board here: https://trello.com/b/7yiHe1nI
+Here are the steps to follow in order to get this working on your machine:
 
-To keep track of the tasks involved in this project we're going to use a kanban board. Ensure that you work on one _ticket_ at time. You can click on the ticket to find out more information about what is required for the feature. A ticket is not considered complete unless both the happy path and errors response are handled. You can make use of the checklist on each ticket to keep track of the errors you want to handle. You can also make use of [error-handling.md](error-handling.md) to consider the error codes we may wish to respond with.
+1. Clone this repo locally:
 
-**Please ensure you work through the tickets in numerical order.**
+`git clone https://github.com/valentinbiz/vb-be-news-api.git`
 
-## Git Branching and Pull Requests
+2. Install required packages:
 
-You will be working on each ticket on a new **branch**.
+`npm install`
 
-To create and switch to a new git branch use the command:
+3. Create a test and development `.env` file to provide access to your databases locally (test and development respectively):
 
-```
-git checkout -b <new branch name>
-```
+`touch .env.test` & `touch .env.development`
 
-This will create a branch and move over to that branch. (Omit the `-b` flag if you wish to switch to an already existing branch).
+4. Modify the `.env` files to contain the names of the right database (your_database_test database in the .test file, your_database in the .development file):
 
-We recommend that you name the branch after the number assigned to each ticket via the header. eg. `ncnews-1`
+e.g `PGDATABASE=<your-database-name>`
 
-When pushing the branch to git hub ensure that you make reference to the branch you are pushing to on the remote.
+The project uses a `nc-news` and `nc-news-test` as defaults but feel free to change the name of the databases. You are also provided with two sets of data (one for testing one for development).
 
-```
-git push origin <branch name>
-```
+You should be all set. Continue to the next section to see some usage examples for this api.
 
-From github you can make a pull request and share the link and ticket number via a pull request specific nchelp using the command `nchelp pr`. A tutor will swing by to review your code. Ensure that you keep your trello up to date whilst you await the PR approval. Regular `nchelp` will be available for when you need support.
+---
 
-Once a pull request been accepted be sure to switch back to the main branch and pull down the updated changes.
+### API Usage
 
-```
-git checkout main
+...
 
-git pull origin main
-```
-
-You can tidy up your local branches once they have been pull into main by deleting them:
-
-```
-git branch -D <local branch>
-```
-
-## Husky
-
-To ensure we are not commiting broken code this project makes use of git hooks. Git hooks are scripts triggered during certain events in the git lifecycle. Husky is a popular package which allows us to set up and maintain these scripts. This project makes use a _pre-commit hook_. When we attempt to commit our work, the script defined in the `pre-commit` file will run. If any of our tests fail than the commit will be aborted.
-
-The [Husky documentation](https://typicode.github.io/husky/#/) explains how to configure Husky for your own project as well as creating your own custom hooks.\_
+---
