@@ -11,16 +11,7 @@ beforeEach(() => seed(testData));
 describe.only("API testing", () => {
   describe("1. GET methods", () => {
     describe("GET /api/topics", () => {
-      test("200: Should return an array of topic objects", () => {
-        return request(app)
-          .get("/api/topics")
-          .expect(200)
-          .then(({ body: { topics } }) => {
-            expect(topics).toBeInstanceOf(Array);
-            expect(topics).toHaveLength(3);
-          });
-      });
-      test("200: It should return the topics with the slug and description properties", () => {
+      test("200: Should return an array of topic objects, each with a slug and description properties", () => {
         return request(app)
           .get("/api/topics")
           .expect(200)
