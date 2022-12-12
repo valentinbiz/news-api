@@ -34,6 +34,8 @@ You should be all set. Continue to the next section to see some usage examples f
 
 ### API Usage
 
-...
+1. Get a list with topics + description
+
+`GET /api/topics`
 
 ---
