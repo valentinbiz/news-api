@@ -94,7 +94,6 @@ describe("API testing", () => {
           .get("/api/articles/3")
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article).toBeInstanceOf(Object);
             expect(article).toEqual(
               expect.objectContaining({
                 author: expect.any(String),
@@ -108,9 +107,9 @@ describe("API testing", () => {
             );
           });
       });
-      test("404: It should return an error when the path provided is wrong", () => {
+      test("404: It should return an error when the id is valid but non-existent", () => {
         return request(app)
-          .get("/api/articless/3")
+          .get("/api/articles/3001")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");

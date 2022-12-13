@@ -18,13 +18,11 @@ const selectArticleById = (articleId) => {
   SELECT * FROM articles
   WHERE article_id = $1;
   `;
-  if (!articleId.match(/^[0-9\.]+$/)) {
-    return Promise.reject({ status: 400, msg: "Bad request" });
-  } else {
-    return db.query(queryString, [articleId]).then(({ rows }) => {
-      return rows[0];
-    });
-  }
+  return db.query(queryString, [articleId]).then(({ rows }) => {
+    if (rows.length === 0)
+      return Promise.reject({ status: 404, msg: "Not found!" });
+    return rows[0];
+  });
 };
 
 module.exports = { selectArticles, selectArticleById };
