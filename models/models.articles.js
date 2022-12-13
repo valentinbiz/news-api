@@ -13,4 +13,18 @@ const selectArticles = () => {
   });
 };
 
-module.exports = { selectArticles };
+const selectArticleById = (articleId) => {
+  const queryString = `
+  SELECT * FROM articles
+  WHERE article_id = $1;
+  `;
+  if (!articleId.match(/^[0-9\.]+$/)) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  } else {
+    return db.query(queryString, [articleId]).then(({ rows }) => {
+      return rows[0];
+    });
+  }
+};
+
+module.exports = { selectArticles, selectArticleById };
