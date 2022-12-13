@@ -88,5 +88,41 @@ describe("API testing", () => {
           });
       });
     });
+    describe("GET /api/articles/:article_id", () => {
+      test("200: Should return with an object with the correct article, containing all the necessary properties", () => {
+        return request(app)
+          .get("/api/articles/3")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
+          });
+      });
+      test("404: It should return an error when the id is valid but non-existent", () => {
+        return request(app)
+          .get("/api/articles/3001")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+      test("400: It should return an error when the id provided is of invalid type", () => {
+        return request(app)
+          .get("/api/articles/three3")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+    });
   });
 });
