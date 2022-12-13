@@ -38,4 +38,8 @@ You should be all set. Continue to the next section to see some usage examples f
 
 `GET /api/topics`
 
+2. Get a list of all the articles (title, author, date when the article was created, topic, the content of the article, votes and the current comment count)
+
+`GET /api/articles`
+
 ---
