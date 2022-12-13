@@ -35,9 +35,7 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
     author VARCHAR NOT NULL REFERENCES users(username),
     body VARCHAR NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    votes INT DEFAULT 0 NOT NULL,
-    comment_count INT DEFAULT 0 NOT NULL
-  );`);
+    votes INT DEFAULT 0 NOT NULL);`);
 
   await db.query(`
   CREATE TABLE comments (
@@ -73,17 +71,16 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
 
   const formattedArticleData = articleData.map(convertTimestampToDate);
   const insertArticlesQueryStr = format(
-    "INSERT INTO articles (title, topic, author, body, created_at, votes, comment_count) VALUES %L RETURNING *;",
+    "INSERT INTO articles (title, topic, author, body, created_at, votes) VALUES %L RETURNING *;",
     formattedArticleData.map(
-      ({
+      ({ title, topic, author, body, created_at, votes = 0 }) => [
         title,
         topic,
         author,
         body,
         created_at,
-        votes = 0,
-        comment_count = 0,
-      }) => [title, topic, author, body, created_at, votes, comment_count]
+        votes,
+      ]
     )
   );
 
