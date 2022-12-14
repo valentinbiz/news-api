@@ -25,4 +25,21 @@ const selectArticleById = (articleId) => {
   });
 };
 
-module.exports = { selectArticles, selectArticleById };
+const selectCommentsByArticleId = (articleId) => {
+  const queryString = `
+  SELECT author, body, votes, comment_id, created_at 
+  FROM comments
+  WHERE article_id = $1
+  ORDER BY created_at DESC;
+  `;
+
+  return db.query(queryString, [articleId]).then(({ rows }) => {
+    return rows;
+  });
+};
+
+module.exports = {
+  selectArticles,
+  selectArticleById,
+  selectCommentsByArticleId,
+};
