@@ -171,6 +171,14 @@ describe("API testing", () => {
             expect(msg).toBe("Not found!");
           });
       });
+      test.only("400: It should return an error when the id provided is of invalid type", () => {
+        return request(app)
+          .get("/api/articles/three/comments")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
     });
   });
 });
