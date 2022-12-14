@@ -5,6 +5,7 @@ const {
   getCommentsByArticleId,
 } = require("./controllers/controllers.articles");
 const { getTopics } = require("./controllers/controllers.topics");
+const { getUsers } = require("./controllers/controllers.users");
 const {
   error404Handler,
   error400Handler,
@@ -13,6 +14,8 @@ const {
 } = require("./controllers/controllers.errors");
 
 const app = express();
+
+app.get("/api/users", getUsers);
 
 app.get("/api/topics", getTopics);
 
