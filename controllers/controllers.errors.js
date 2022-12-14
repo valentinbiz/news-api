@@ -1,5 +1,7 @@
 const errorPsqlHandler = (error, request, response, next) => {
   if (error.code === "22P02") response.status(400).send({ msg: "Bad request" });
+  else if (error.code === "23503")
+    response.status(404).send({ msg: "Not found!" });
   else next(error);
 };
 const error400Handler = (error, request, response, next) => {

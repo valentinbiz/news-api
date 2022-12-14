@@ -109,7 +109,7 @@ describe("API testing", () => {
       });
       test("404: It should return an error when the id is valid but non-existent", () => {
         return request(app)
-          .get("/api/articles/3001")
+          .get("/api/articles/3000")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");
@@ -124,59 +124,80 @@ describe("API testing", () => {
           });
       });
     });
-    describe("GET /api/articles/:article_id/comments", () => {
-      test("200: Should return an array of comments for a specific article, each with author, body, votes, comment id and created at properties", () => {
+  });
+  describe("2. POST methods", () => {
+    describe("POST /api/articles/:article_id/comments", () => {
+      test("201: when passed a valid comment object, updates the database and returns the newly added comment.", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+          username: "butter_bridge",
+        };
         return request(app)
-          .get("/api/articles/1/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            expect(comments).toBeInstanceOf(Array);
-            expect(comments).toHaveLength(11);
-            comments.forEach((comment) => {
-              expect(comment).toEqual(
-                expect.objectContaining({
-                  author: expect.any(String),
-                  body: expect.any(String),
-                  votes: expect.any(Number),
-                  comment_id: expect.any(Number),
-                  created_at: expect.any(String),
-                })
-              );
-            });
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(201)
+          .then(({ body: { comment } }) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+                comment_id: expect.any(Number),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
           });
       });
-      test("200: Should return a 200 status with no body returned when the article exists but there are no comments", () => {
+      test("400: when passed a comment object that misses a property, throw error.", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+        };
         return request(app)
-          .get("/api/articles/7/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            expect(comments).toEqual([]);
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe("bad request");
           });
       });
-      test("200: Should return with an array of comments, sorted by date in ascending order", () => {
+      test("400: when passed a comment value that is an invalid type, throw error.", () => {
+        const newComment = {
+          body: 3,
+          username: "butter_bridge",
+        };
         return request(app)
-          .get("/api/articles/1/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            expect(comments).toBeInstanceOf(Array);
-            expect(comments).toHaveLength(11);
-            expect(comments).toBeSortedBy("created_at", { descending: true });
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe("bad request");
           });
       });
       test("404: It should return an error when the id is valid but non-existent", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+          username: "butter_bridge",
+        };
         return request(app)
-          .get("/api/articles/3001/comments")
+          .post("/api/articles/3000/comments")
+          .send(newComment)
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");
           });
       });
-      test("400: It should return an error when the id provided is of invalid type", () => {
+      test("404: It should return an error when the user does not exist", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+          username: "timmy",
+        };
         return request(app)
-          .get("/api/articles/three/comments")
-          .expect(400)
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("Bad request");
+            expect(msg).toBe("Not found!");
           });
       });
     });
