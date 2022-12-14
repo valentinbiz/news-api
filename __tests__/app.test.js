@@ -181,4 +181,78 @@ describe("API testing", () => {
       });
     });
   });
+  describe("3. PATCH methods", () => {
+    describe("PATCH /api/articles/:article_id", () => {
+      test("200: Comment updated successfully, return the updated comment object", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.votes).toEqual(103);
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
+          });
+      });
+      test("200: Comment updated successfully, with negative values in case the update takes vote count below 0", () => {
+        const commentUpdate = { inc_votes: -120 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.votes).toEqual(-20);
+          });
+      });
+      test("400: No increment value provided, return bad request", () => {
+        const commentUpdate = {};
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("400: Invalid inc_votes type provided, return bad request", () => {
+        const commentUpdate = { inc_votes: "three" };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("404: Valid article id but non existent in the db, return not found", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articles/39")
+          .send(commentUpdate)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+      test("404: Wrong path provided, return not found", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articless/1")
+          .send(commentUpdate)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+    });
+  });
 });

@@ -2,6 +2,7 @@ const {
   selectArticles,
   selectArticleById,
   selectCommentsByArticleId,
+  updateVotes,
 } = require("../models/models.articles");
 const { checkIfIdExists } = require("../models/models.id");
 
@@ -30,8 +31,28 @@ const getCommentsByArticleId = (request, response, next) => {
     .catch((error) => next(error));
 };
 
+const patchArticleVotes = (request, response, next) => {
+  const { inc_votes } = request.body;
+  const articleId = request.params.article_id;
+  updateVotes(articleId, inc_votes)
+    .then(({ rows }) => {
+      response.status(200).send({ article: rows[0] });
+    })
+    .catch((error) => next(error));
+};
+
 module.exports = {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
+  patchArticleVotes,
 };
+
+// const promises = [updateVotes(articleId, inc_votes)];
+// promises.push(checkIfIdExists(articleId));
+
+// Promise.all(promises)
+//   .then(([comments]) => {
+//     response.status(200).send({ comments });
+//   })
+//   .catch((error) => next(error));

@@ -38,8 +38,36 @@ const selectCommentsByArticleId = (articleId) => {
   });
 };
 
+const updateVotes = (articleId, updateInfo) => {
+  const updateVotesQueryString = `
+  UPDATE articles 
+  SET votes = $1 
+  WHERE article_id = $2 
+  RETURNING *;
+  `;
+
+  const getCurrentVotesQueryString = `
+  SELECT votes 
+  FROM articles 
+  WHERE article_id = $1
+  `;
+
+  return db
+    .query(getCurrentVotesQueryString, [articleId])
+    .then(({ rows }) => {
+      if (rows.length === 0)
+        return Promise.reject({ status: 404, msg: "Not found!" });
+      return rows[0];
+    })
+    .then(({ votes }) => {
+      const newVotes = votes + updateInfo;
+      return db.query(updateVotesQueryString, [newVotes, articleId]);
+    });
+};
+
 module.exports = {
   selectArticles,
   selectArticleById,
   selectCommentsByArticleId,
+  updateVotes,
 };
