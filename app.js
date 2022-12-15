@@ -7,6 +7,7 @@ const {
   postComment,
 } = require("./controllers/controllers.articles");
 const { getTopics } = require("./controllers/controllers.topics");
+const { getUsers } = require("./controllers/controllers.users");
 const {
   error404Handler,
   error400Handler,
@@ -16,6 +17,8 @@ const {
 
 const app = express();
 app.use(express.json());
+
+app.get("/api/users", getUsers);
 
 app.get("/api/topics", getTopics);
 
