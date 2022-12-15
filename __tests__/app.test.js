@@ -109,7 +109,7 @@ describe("API testing", () => {
       });
       test("404: It should return an error when the id is valid but non-existent", () => {
         return request(app)
-          .get("/api/articles/3001")
+          .get("/api/articles/3000")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");
@@ -124,51 +124,54 @@ describe("API testing", () => {
           });
       });
     });
-    describe("GET /api/articles/:article_id/comments", () => {
-      test("200: Should return an array of comments for a specific article, each with author, body, votes, comment id and created at properties", () => {
+  });
+  describe("2. POST methods", () => {
+    describe("POST /api/articles/:article_id/comments", () => {
+      test("201: when passed a valid comment object, updates the database and returns the newly added comment.", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+          username: "butter_bridge",
+        };
         return request(app)
-          .get("/api/articles/1/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            expect(comments).toBeInstanceOf(Array);
-            expect(comments).toHaveLength(11);
-            comments.forEach((comment) => {
-              expect(comment).toEqual(
-                expect.objectContaining({
-                  author: expect.any(String),
-                  body: expect.any(String),
-                  votes: expect.any(Number),
-                  comment_id: expect.any(Number),
-                  created_at: expect.any(String),
-                })
-              );
-            });
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(201)
+          .then(({ body: { comment } }) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+                comment_id: expect.any(Number),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
           });
       });
-      test("200: Should return a 200 status with no body returned when the article exists but there are no comments", () => {
+      test("400: when passed a comment object that misses a property, throw error.", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+        };
         return request(app)
-          .get("/api/articles/7/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            expect(comments).toEqual([]);
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe("bad request");
           });
       });
-      test("200: Should return with an array of comments, sorted by date in ascending order", () => {
+      test("400: when passed a comment value that is an invalid type, throw error.", () => {
+        const newComment = {
+          body: 3,
+          username: "butter_bridge",
+        };
         return request(app)
-          .get("/api/articles/1/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            expect(comments).toBeInstanceOf(Array);
-            expect(comments).toHaveLength(11);
-            expect(comments).toBeSortedBy("created_at", { descending: true });
-          });
-      });
-      test("404: It should return an error when the id is valid but non-existent", () => {
-        return request(app)
-          .get("/api/articles/3001/comments")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Not found!");
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toBe("bad request");
           });
       });
       test("400: It should return an error when the id provided is of invalid type", () => {
@@ -177,6 +180,115 @@ describe("API testing", () => {
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Bad request");
+          });
+      });
+      test("404: It should return an error when the id is valid but non-existent", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+          username: "butter_bridge",
+        };
+        return request(app)
+          .post("/api/articles/3000/comments")
+          .send(newComment)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+      test("404: It should return an error when the user does not exist", () => {
+        const newComment = {
+          body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
+          username: "timmy",
+        };
+        return request(app)
+          .post("/api/articles/7/comments")
+          .send(newComment)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+    });
+  });
+  describe("3. PATCH methods", () => {
+    describe("PATCH /api/articles/:article_id", () => {
+      test("200: Comment updated successfully, return the updated comment object", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: 1,
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: 103,
+              })
+            );
+          });
+      });
+      test("200: Comment updated successfully, with negative values in case the update takes vote count below 0", () => {
+        const commentUpdate = { inc_votes: -120 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.votes).toEqual(-20);
+          });
+      });
+      test("400: No increment value provided, return bad request", () => {
+        const commentUpdate = {};
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("400: Invalid inc_votes type provided, return bad request", () => {
+        const commentUpdate = { inc_votes: "three" };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(commentUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("400: It should return an error when the id provided is of invalid type", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articles/three")
+          .send(commentUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("404: Valid article id but non existent in the db, return not found", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articles/39")
+          .send(commentUpdate)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+      test("404: Wrong path provided, return not found", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articless/1")
+          .send(commentUpdate)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
           });
       });
     });
