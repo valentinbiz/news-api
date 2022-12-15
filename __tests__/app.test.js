@@ -152,7 +152,7 @@ describe("API testing", () => {
       });
       test("404: It should return an error when the path provided is wrong", () => {
         return request(app)
-          .get("/api/topicss")
+          .get("/api/userssss")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");
