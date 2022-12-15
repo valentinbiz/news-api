@@ -124,6 +124,41 @@ describe("API testing", () => {
           });
       });
     });
+    describe("GET /api/users", () => {
+      test("200: Should return an array of users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users).toBeInstanceOf(Array);
+            expect(users).toHaveLength(4);
+          });
+      });
+      test("200: Should return an array of users, all with a username, name and avatar link", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            users.forEach((user) => {
+              expect(user).toEqual(
+                expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  avatar_url: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+      test("404: It should return an error when the path provided is wrong", () => {
+        return request(app)
+          .get("/api/topicss")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+    });
   });
   describe("2. POST methods", () => {
     describe("POST /api/articles/:article_id/comments", () => {
@@ -286,41 +321,6 @@ describe("API testing", () => {
         return request(app)
           .patch("/api/articless/1")
           .send(commentUpdate)
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Not found!");
-          });
-      });
-    });
-    describe("GET /api/users", () => {
-      test("200: Should return an array of users", () => {
-        return request(app)
-          .get("/api/users")
-          .expect(200)
-          .then(({ body: { users } }) => {
-            expect(users).toBeInstanceOf(Array);
-            expect(users).toHaveLength(4);
-          });
-      });
-      test("200: Should return an array of users, all with a username, name and avatar link", () => {
-        return request(app)
-          .get("/api/users")
-          .expect(200)
-          .then(({ body: { users } }) => {
-            users.forEach((user) => {
-              expect(user).toEqual(
-                expect.objectContaining({
-                  username: expect.any(String),
-                  name: expect.any(String),
-                  avatar_url: expect.any(String),
-                })
-              );
-            });
-          });
-      });
-      test("404: It should return an error when the path provided is wrong", () => {
-        return request(app)
-          .get("/api/topicss")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");
