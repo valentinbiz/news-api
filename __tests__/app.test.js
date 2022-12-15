@@ -219,15 +219,14 @@ describe("API testing", () => {
           .send(commentUpdate)
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article.votes).toEqual(103);
             expect(article).toEqual(
               expect.objectContaining({
                 author: expect.any(String),
                 title: expect.any(String),
-                article_id: expect.any(Number),
+                article_id: 1,
                 topic: expect.any(String),
                 created_at: expect.any(String),
-                votes: expect.any(Number),
+                votes: 103,
               })
             );
           });
