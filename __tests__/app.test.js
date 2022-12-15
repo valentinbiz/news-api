@@ -262,6 +262,16 @@ describe("API testing", () => {
             expect(msg).toBe("Bad request");
           });
       });
+      test("400: It should return an error when the id provided is of invalid type", () => {
+        const commentUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/articles/three")
+          .send(commentUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
       test("404: Valid article id but non existent in the db, return not found", () => {
         const commentUpdate = { inc_votes: 3 };
         return request(app)
