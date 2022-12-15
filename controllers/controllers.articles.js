@@ -10,7 +10,8 @@ const {
 const { checkIfIdExists } = require("../models/models.id");
 
 const getArticles = (request, response, next) => {
-  selectArticles()
+  const { sort_by, order, topic } = request.query;
+  selectArticles(sort_by, order, topic)
     .then((articles) => response.status(200).send({ articles }))
     .catch((error) => next(error));
 };
