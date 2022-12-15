@@ -26,9 +26,7 @@ const getCommentsByArticleId = (request, response, next) => {
   const promises = [selectCommentsByArticleId(articleId)];
   promises.push(checkIfIdExists(articleId));
   Promise.all(promises)
-    .then(([comments]) => {
-      response.status(200).send({ comments });
-    })
+    .then(([comments]) => response.status(200).send({ comments }))
     .catch((error) => next(error));
 };
 
@@ -36,9 +34,7 @@ const postComment = (request, response, next) => {
   const { body, username } = request.body;
   const articleId = request.params.article_id;
   insertComment(articleId, body, username)
-    .then((comment) => {
-      response.status(201).send({ comment });
-    })
+    .then((comment) => response.status(201).send({ comment }))
     .catch((error) => next(error));
 };
 
