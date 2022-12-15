@@ -1,6 +1,7 @@
 const {
   selectArticles,
   selectArticleById,
+  updateVotes,
 } = require("../models/models.articles");
 const {
   selectCommentsByArticleId,
@@ -38,9 +39,18 @@ const postComment = (request, response, next) => {
     .catch((error) => next(error));
 };
 
+const patchArticleVotes = (request, response, next) => {
+  const { inc_votes } = request.body;
+  const articleId = request.params.article_id;
+  updateVotes(articleId, inc_votes)
+    .then(({ rows }) => response.status(200).send({ article: rows[0] }))
+    .catch((error) => next(error));
+};
+
 module.exports = {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
+  patchArticleVotes,
   postComment,
 };
