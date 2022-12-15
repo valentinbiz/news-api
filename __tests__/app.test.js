@@ -174,6 +174,14 @@ describe("API testing", () => {
             expect(response.body.msg).toBe("bad request");
           });
       });
+      test("400: It should return an error when the id provided is of invalid type", () => {
+        return request(app)
+          .get("/api/articles/three/comments")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
       test("404: It should return an error when the id is valid but non-existent", () => {
         const newComment = {
           body: "lovely article but I can't stop thinking about Mitch being a mole pls help",
