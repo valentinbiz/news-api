@@ -15,8 +15,11 @@ const selectArticles = () => {
 
 const selectArticleById = (articleId) => {
   const queryString = `
-  SELECT * FROM articles
-  WHERE article_id = $1;
+  SELECT articles.*, COUNT(comments.article_id)::INT AS comment_count
+  FROM articles
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  WHERE articles.article_id = $1
+  GROUP BY articles.article_id;
   `;
   return db.query(queryString, [articleId]).then(({ rows }) => {
     if (rows.length === 0)
