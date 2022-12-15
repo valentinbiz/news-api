@@ -1,8 +1,11 @@
 const {
   selectArticles,
   selectArticleById,
-  selectCommentsByArticleId,
 } = require("../models/models.articles");
+const {
+  selectCommentsByArticleId,
+  insertComment,
+} = require("../models/models.comments");
 const { checkIfIdExists } = require("../models/models.id");
 
 const getArticles = (request, response, next) => {
@@ -22,11 +25,16 @@ const getCommentsByArticleId = (request, response, next) => {
   const articleId = request.params.article_id;
   const promises = [selectCommentsByArticleId(articleId)];
   promises.push(checkIfIdExists(articleId));
-
   Promise.all(promises)
-    .then(([comments]) => {
-      response.status(200).send({ comments });
-    })
+    .then(([comments]) => response.status(200).send({ comments }))
+    .catch((error) => next(error));
+};
+
+const postComment = (request, response, next) => {
+  const { body, username } = request.body;
+  const articleId = request.params.article_id;
+  insertComment(articleId, body, username)
+    .then((comment) => response.status(201).send({ comment }))
     .catch((error) => next(error));
 };
 
@@ -34,4 +42,5 @@ module.exports = {
   getArticles,
   getArticleById,
   getCommentsByArticleId,
+  postComment,
 };
