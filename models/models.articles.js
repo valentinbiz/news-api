@@ -11,11 +11,6 @@ const selectArticles = (sort_by = "created_at", order = "DESC", topic) => {
     "comment_count",
   ];
   const validSortingOrder = ["asc", "desc"];
-  const validTopic = ["mitch", "cats", "coding", "football", "cooking"];
-
-  if (topic !== undefined && !validTopic.includes(topic)) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
-  }
 
   if (!validSortingOrder.includes(order.toLowerCase())) {
     return Promise.reject({ status: 400, msg: "Bad Request" });

@@ -54,6 +54,7 @@ describe("API testing", () => {
             .get("/api/articles")
             .expect(200)
             .then(({ body: { articles } }) => {
+              expect(articles).toHaveLength(12);
               articles.forEach((article) => {
                 expect(article).toEqual(
                   expect.objectContaining({
@@ -105,6 +106,7 @@ describe("API testing", () => {
             .get("/api/articles?topic=mitch")
             .expect(200)
             .then(({ body: { articles } }) => {
+              expect(articles).toHaveLength(11);
               articles.forEach((article) => {
                 expect(article.topic).toEqual("mitch");
               });
@@ -126,20 +128,28 @@ describe("API testing", () => {
               expect(msg).toBe("Bad Request");
             });
         });
-        test("400: sent an invalid topic", () => {
-          return request(app)
-            .get("/api/articles?topic=mitch; DROPTABLES")
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Bad Request");
-            });
-        });
         test("400: sent an invalid order", () => {
           return request(app)
             .get("/api/articles?order=asc; DROPTABLES")
             .expect(400)
             .then(({ body: { msg } }) => {
               expect(msg).toBe("Bad Request");
+            });
+        });
+        test("404: sent a non existent topic", () => {
+          return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Not found!");
+            });
+        });
+        test("404: sent a non existent topic", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch; DROPTABLES")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Not found!");
             });
         });
       });

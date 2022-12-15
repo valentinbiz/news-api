@@ -7,12 +7,16 @@ const {
   selectCommentsByArticleId,
   insertComment,
 } = require("../models/models.comments");
-const { checkIfIdExists } = require("../models/models.id");
+const { checkIfItemExists } = require("../models/models.id");
 
 const getArticles = (request, response, next) => {
   const { sort_by, order, topic } = request.query;
-  selectArticles(sort_by, order, topic)
-    .then((articles) => response.status(200).send({ articles }))
+  const promises = [selectArticles(sort_by, order, topic)];
+  if (topic !== undefined) promises.push(checkIfItemExists("topic", topic));
+  Promise.all(promises)
+    .then((articles) => {
+      response.status(200).send({ articles: articles[0] });
+    })
     .catch((error) => next(error));
 };
 
@@ -26,7 +30,7 @@ const getArticleById = (request, response, next) => {
 const getCommentsByArticleId = (request, response, next) => {
   const articleId = request.params.article_id;
   const promises = [selectCommentsByArticleId(articleId)];
-  promises.push(checkIfIdExists(articleId));
+  promises.push(checkIfItemExists("article_id", articleId));
   Promise.all(promises)
     .then(([comments]) => response.status(200).send({ comments }))
     .catch((error) => next(error));
