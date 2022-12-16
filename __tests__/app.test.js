@@ -39,36 +39,41 @@ describe("API testing", () => {
     });
     describe("GET /api/articles", () => {
       describe("Basic behaviour", () => {
-        test("200: Should return with an array of articles, sorted by date in ascending order", () => {
-          return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).toBeInstanceOf(Array);
-              expect(articles).toHaveLength(12);
-              expect(articles).toBeSortedBy("created_at", { descending: true });
-            });
-        });
-        test("200: All the objects in the array will have the following properties: author, title, article_id, topic, created_at, votes, comment_count.", () => {
-          return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).toHaveLength(12);
-              articles.forEach((article) => {
-                expect(article).toEqual(
-                  expect.objectContaining({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    comment_count: expect.any(Number),
-                  })
-                );
+        describe("Basic behaviour", () => {
+          test("200: Should return with an array of articles, sorted by date in ascending order", () => {
+            return request(app)
+              .get("/api/articles")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toBeInstanceOf(Array);
+                expect(articles).toHaveLength(12);
+                expect(articles).toBeSortedBy("created_at", {
+                  descending: true,
+                });
               });
-            });
+          });
+          test("200: All the objects in the array will have the following properties: author, title, article_id, topic, created_at, votes, comment_count.", () => {
+            return request(app)
+              .get("/api/articles")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toHaveLength(12);
+                expect(articles).toHaveLength(12);
+                articles.forEach((article) => {
+                  expect(article).toMatchObject(
+                    expect.objectContaining({
+                      author: expect.any(String),
+                      title: expect.any(String),
+                      article_id: expect.any(Number),
+                      topic: expect.any(String),
+                      created_at: expect.any(String),
+                      votes: expect.any(Number),
+                      comment_count: expect.any(Number),
+                    })
+                  );
+                });
+              });
+          });
         });
         test("200: The values of the comment_count for each article will accuratley match the one we get from the test data", () => {
           return request(app)
@@ -99,6 +104,7 @@ describe("API testing", () => {
             .expect(200)
             .then(({ body: { articles } }) => {
               expect(articles).toBeSortedBy("author");
+              expect(articles).toHaveLength(12);
             });
         });
         test("200: It should should return the articles based on the topic provided", () => {
@@ -120,14 +126,6 @@ describe("API testing", () => {
               expect(articles).toBeSortedBy("created_at");
             });
         });
-        test("200: sent an existent topic with no articles", () => {
-          return request(app)
-            .get("/api/articles?topic=paper")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).toEqual([]);
-            });
-        });
         test("400: sent an invalid column to sort by", () => {
           return request(app)
             .get("/api/articles?order=asc; DROPTABLES")
@@ -146,7 +144,15 @@ describe("API testing", () => {
         });
         test("404: sent a non existent topic", () => {
           return request(app)
-            .get("/api/articles?topic=mitch DROPTABLES")
+            .get("/api/articles?topic=paper")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toEqual([]);
+            });
+        });
+        test("404: sent a non existent topic", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch; DROPTABLES")
             .expect(404)
             .then(({ body: { msg } }) => {
               expect(msg).toBe("Not found!");
@@ -157,10 +163,10 @@ describe("API testing", () => {
     describe("GET /api/articles/:article_id", () => {
       test("200: Should return with an object with the correct article, containing all the necessary properties", () => {
         return request(app)
-          .get("/api/articles/3")
+          .get("/api/articles/1")
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article).toEqual(
+            expect(article).toMatchObject(
               expect.objectContaining({
                 author: expect.any(String),
                 title: expect.any(String),
@@ -171,6 +177,14 @@ describe("API testing", () => {
                 votes: expect.any(Number),
               })
             );
+          });
+      });
+      test("200: Should return an article object with the comment count", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.comment_count).toEqual(11);
           });
       });
       test("404: It should return an error when the id is valid but non-existent", () => {
@@ -238,7 +252,7 @@ describe("API testing", () => {
           .send(newComment)
           .expect(201)
           .then(({ body: { comment } }) => {
-            expect(comment).toEqual(
+            expect(comment).toMatchObject(
               expect.objectContaining({
                 author: expect.any(String),
                 body: expect.any(String),
@@ -320,7 +334,7 @@ describe("API testing", () => {
           .send(commentUpdate)
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article).toEqual(
+            expect(article).toMatchObject(
               expect.objectContaining({
                 author: expect.any(String),
                 title: expect.any(String),
