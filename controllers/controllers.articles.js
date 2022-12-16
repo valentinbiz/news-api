@@ -14,8 +14,8 @@ const getArticles = (request, response, next) => {
   const promises = [selectArticles(sort_by, order, topic)];
   if (topic !== undefined) promises.push(checkIfItemExists("topic", topic));
   Promise.all(promises)
-    .then((articles) => {
-      response.status(200).send({ articles: articles[0] });
+    .then(([articles]) => {
+      response.status(200).send({ articles });
     })
     .catch((error) => next(error));
 };

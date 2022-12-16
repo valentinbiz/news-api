@@ -120,6 +120,14 @@ describe("API testing", () => {
               expect(articles).toBeSortedBy("created_at");
             });
         });
+        test("200: sent a non existent topic", () => {
+          return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toEqual([]);
+            });
+        });
         test("400: sent an invalid column to sort by", () => {
           return request(app)
             .get("/api/articles?order=asc; DROPTABLES")
@@ -138,7 +146,7 @@ describe("API testing", () => {
         });
         test("404: sent a non existent topic", () => {
           return request(app)
-            .get("/api/articles?topic=paper")
+            .get("/api/articles?topic=mitch DROPTABLES")
             .expect(404)
             .then(({ body: { msg } }) => {
               expect(msg).toBe("Not found!");
