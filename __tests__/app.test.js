@@ -120,7 +120,7 @@ describe("API testing", () => {
               expect(articles).toBeSortedBy("created_at");
             });
         });
-        test("200: sent a non existent topic", () => {
+        test("200: sent an existent topic with no articles", () => {
           return request(app)
             .get("/api/articles?topic=paper")
             .expect(200)
