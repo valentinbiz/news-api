@@ -9,6 +9,7 @@ const {
 const { getTopics } = require("./controllers/controllers.topics");
 const { getUsers } = require("./controllers/controllers.users");
 const { deleteComment } = require("./controllers/controller.comments");
+const { getInfo } = require("./controllers/controller.api");
 const {
   error404Handler,
   error400Handler,
@@ -18,6 +19,8 @@ const {
 
 const app = express();
 app.use(express.json());
+
+app.get("/api", getInfo);
 
 app.get("/api/users", getUsers);
 

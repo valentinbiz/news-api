@@ -10,6 +10,24 @@ beforeEach(() => seed(testData));
 
 describe("API testing", () => {
   describe("1. GET methods", () => {
+    describe("GET /api", () => {
+      test("200: Should return an array of topic objects, each with a slug and description properties", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body: { endpointsData } }) => {
+            expect(endpointsData).toBeInstanceOf(Object);
+          });
+      });
+      test("404: It should return an error when the path provided is wrong", () => {
+        return request(app)
+          .get("/apy")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+    });
     describe("GET /api/topics", () => {
       test("200: Should return an array of topic objects, each with a slug and description properties", () => {
         return request(app)
@@ -198,6 +216,62 @@ describe("API testing", () => {
       test("400: It should return an error when the id provided is of invalid type", () => {
         return request(app)
           .get("/api/articles/three3")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+    });
+    describe("GET /api/articles/:article_id/comments", () => {
+      test("200: Should return an array of comments for a specific article, each with author, body, votes, comment id and created at properties", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toBeInstanceOf(Array);
+            expect(comments).toHaveLength(11);
+            comments.forEach((comment) => {
+              expect(comment).toEqual(
+                expect.objectContaining({
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_id: expect.any(Number),
+                  created_at: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+      test("200: Should return a 200 status with no body returned when the article exists but there are no comments", () => {
+        return request(app)
+          .get("/api/articles/7/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toEqual([]);
+          });
+      });
+      test("200: Should return with an array of comments, sorted by date in ascending order", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toBeInstanceOf(Array);
+            expect(comments).toHaveLength(11);
+            expect(comments).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      test("404: It should return an error when the id is valid but non-existent", () => {
+        return request(app)
+          .get("/api/articles/3001/comments")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+      test("400: It should return an error when the id provided is of invalid type", () => {
+        return request(app)
+          .get("/api/articles/three/comments")
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Bad request");
