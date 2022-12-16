@@ -16,6 +16,7 @@ describe("API testing", () => {
           .get("/api")
           .expect(200)
           .then(({ body: { endpointsData } }) => {
+            console.log(endpointsData);
             expect(endpointsData).toBeInstanceOf(Object);
           });
       });
