@@ -15,9 +15,8 @@ describe("API testing", () => {
         return request(app)
           .get("/api")
           .expect(200)
-          .then(({ body: { endpointsData } }) => {
-            console.log(endpointsData);
-            expect(endpointsData).toBeInstanceOf(Object);
+          .then(({ body: information }) => {
+            expect(information).toBeInstanceOf(Object);
           });
       });
       test("404: It should return an error when the path provided is wrong", () => {
