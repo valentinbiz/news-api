@@ -8,6 +8,7 @@ const {
 } = require("./controllers/controllers.articles");
 const { getTopics } = require("./controllers/controllers.topics");
 const { getUsers } = require("./controllers/controllers.users");
+const { deleteComment } = require("./controllers/controller.comments");
 const {
   error404Handler,
   error400Handler,
@@ -29,6 +30,8 @@ app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postComment);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.all("*", error404Handler);
 app.use(error400Handler);

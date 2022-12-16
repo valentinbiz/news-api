@@ -7,7 +7,7 @@ const {
   selectCommentsByArticleId,
   insertComment,
 } = require("../models/models.comments");
-const { checkIfItemExists } = require("../models/models.id");
+const { checkIfItemExists } = require("../models/models.validate");
 
 const getArticles = (request, response, next) => {
   const { sort_by, order, topic } = request.query;
