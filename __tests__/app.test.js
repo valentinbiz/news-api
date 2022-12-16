@@ -38,54 +38,120 @@ describe("API testing", () => {
       });
     });
     describe("GET /api/articles", () => {
-      test("200: Should return with an array of articles, sorted by date in ascending order", () => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles).toBeInstanceOf(Array);
-            expect(articles).toHaveLength(12);
-            expect(articles).toBeSortedBy("created_at", { descending: true });
-          });
-      });
-      test("200: All the objects in the array will have the following properties: author, title, article_id, topic, created_at, votes, comment_count.", () => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            articles.forEach((article) => {
-              expect(article).toEqual(
-                expect.objectContaining({
-                  author: expect.any(String),
-                  title: expect.any(String),
-                  article_id: expect.any(Number),
-                  topic: expect.any(String),
-                  created_at: expect.any(String),
-                  votes: expect.any(Number),
-                  comment_count: expect.any(Number),
-                })
-              );
+      describe("Basic behaviour", () => {
+        test("200: Should return with an array of articles, sorted by date in ascending order", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toBeInstanceOf(Array);
+              expect(articles).toHaveLength(12);
+              expect(articles).toBeSortedBy("created_at", { descending: true });
             });
-          });
-      });
-      test("200: The values of the comment_count for each article will accuratley match the one we get from the test data", () => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            const commentCount = articles.map((article) => {
-              return article.comment_count;
+        });
+        test("200: All the objects in the array will have the following properties: author, title, article_id, topic, created_at, votes, comment_count.", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toHaveLength(12);
+              articles.forEach((article) => {
+                expect(article).toEqual(
+                  expect.objectContaining({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(Number),
+                  })
+                );
+              });
             });
-            expect(commentCount).toEqual([2, 1, 0, 0, 2, 11, 2, 0, 0, 0, 0, 0]);
-          });
+        });
+        test("200: The values of the comment_count for each article will accuratley match the one we get from the test data", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              const commentCount = articles.map((article) => {
+                return article.comment_count;
+              });
+              expect(commentCount).toEqual([
+                2, 1, 0, 0, 2, 11, 2, 0, 0, 0, 0, 0,
+              ]);
+            });
+        });
+        test("404: It should return an error when the path provided is wrong", () => {
+          return request(app)
+            .get("/api/articless")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Not found!");
+            });
+        });
       });
-      test("404: It should return an error when the path provided is wrong", () => {
-        return request(app)
-          .get("/api/articless")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Not found!");
-          });
+      describe("Queries behaviour", () => {
+        test("200: It should should return the articles sorted by any valid column (alphabetically or ascending)", () => {
+          return request(app)
+            .get("/api/articles?sort_by=author")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toBeSortedBy("author");
+            });
+        });
+        test("200: It should should return the articles based on the topic provided", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toHaveLength(11);
+              articles.forEach((article) => {
+                expect(article.topic).toEqual("mitch");
+              });
+            });
+        });
+        test("200: It should should return the articles in ascending order when order query = ASC (not sensitive to lower or uppercase)", () => {
+          return request(app)
+            .get("/api/articles?order=ASC")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toBeSortedBy("created_at");
+            });
+        });
+        test("200: sent an existent topic with no articles", () => {
+          return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toEqual([]);
+            });
+        });
+        test("400: sent an invalid column to sort by", () => {
+          return request(app)
+            .get("/api/articles?order=asc; DROPTABLES")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Bad Request");
+            });
+        });
+        test("400: sent an invalid order", () => {
+          return request(app)
+            .get("/api/articles?order=asc; DROPTABLES")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Bad Request");
+            });
+        });
+        test("404: sent a non existent topic", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch DROPTABLES")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Not found!");
+            });
+        });
       });
     });
     describe("GET /api/articles/:article_id", () => {

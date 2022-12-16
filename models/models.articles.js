@@ -1,14 +1,42 @@
 const db = require("../db/connection");
 
-const selectArticles = () => {
-  const query = `
+const selectArticles = (sort_by = "created_at", order = "DESC", topic) => {
+  const validSortByQueries = [
+    "author",
+    "created_at",
+    "title",
+    "article_id",
+    "topic",
+    "votes",
+    "comment_count",
+  ];
+  const validSortingOrder = ["asc", "desc"];
+
+  if (!validSortingOrder.includes(order.toLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  if (!validSortByQueries.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let query = `
   SELECT articles.*, COUNT(comments.article_id)::INT AS comment_count
   FROM articles
-  
-  LEFT JOIN comments ON articles.article_id = comments.article_id
+  LEFT JOIN comments ON articles.article_id = comments.article_id `;
+
+  const queryParam = [];
+  if (topic !== undefined) {
+    query += `WHERE topic = $1`;
+    queryParam.push(topic);
+  }
+
+  if (sort_by !== "created_at") order = "ASC";
+
+  query += `
   GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC;`;
-  return db.query(query).then(({ rows }) => {
+  ORDER BY articles.${sort_by} ${order};`;
+  return db.query(query, queryParam).then(({ rows }) => {
     return rows;
   });
 };
