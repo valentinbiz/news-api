@@ -60,7 +60,7 @@ describe("API testing", () => {
                 expect(articles).toHaveLength(12);
                 expect(articles).toHaveLength(12);
                 articles.forEach((article) => {
-                  expect(article).toEqual(
+                  expect(article).toMatchObject(
                     expect.objectContaining({
                       author: expect.any(String),
                       title: expect.any(String),
@@ -166,7 +166,7 @@ describe("API testing", () => {
           .get("/api/articles/1")
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article).toEqual(
+            expect(article).toMatchObject(
               expect.objectContaining({
                 author: expect.any(String),
                 title: expect.any(String),
@@ -175,7 +175,6 @@ describe("API testing", () => {
                 body: expect.any(String),
                 created_at: expect.any(String),
                 votes: expect.any(Number),
-                comment_count: expect.any(Number),
               })
             );
           });
@@ -253,7 +252,7 @@ describe("API testing", () => {
           .send(newComment)
           .expect(201)
           .then(({ body: { comment } }) => {
-            expect(comment).toEqual(
+            expect(comment).toMatchObject(
               expect.objectContaining({
                 author: expect.any(String),
                 body: expect.any(String),
@@ -335,7 +334,7 @@ describe("API testing", () => {
           .send(commentUpdate)
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article).toEqual(
+            expect(article).toMatchObject(
               expect.objectContaining({
                 author: expect.any(String),
                 title: expect.any(String),
