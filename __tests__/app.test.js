@@ -144,14 +144,6 @@ describe("API testing", () => {
               expect(msg).toBe("Not found!");
             });
         });
-        test("404: sent a non existent topic", () => {
-          return request(app)
-            .get("/api/articles?topic=mitch; DROPTABLES")
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Not found!");
-            });
-        });
       });
     });
     describe("GET /api/articles/:article_id", () => {
