@@ -2,11 +2,23 @@
 
 ## Background
 
-The purpose of this API is to provide the user with access to a news platform (a bigger and better Reddit). Some of the FUNctionality includes accessing different news article (in bulk or based on specific topics), comments on articles and user data. This is a work in progress and this README will be updated accordingly as the API is being developed...
+The purpose of this API is to provide the user with access to a news platform (a bigger and better Reddit). Some of the FUNctionality includes:
 
----
+- accessing news articles (in bulk or based specific criterias; sorting also available)
+- accessing comments
+- updating the comment count for articles
+- adding and deleting comments
+
+This is currently a work in progress and more functionality will be added in the near future.
+
+## Check the live version of the API here: https://news-api-hosting.onrender.com/api
 
 ### Initial setup
+
+Minimum requirements:
+
+`Node 19.0`
+`Postgresql 14.0`
 
 Here are the steps to follow in order to get this working on your machine:
 
@@ -26,6 +38,18 @@ Here are the steps to follow in order to get this working on your machine:
 
 e.g `PGDATABASE=<your-database-name>`
 
+5. After creating the files, run the following command to set up the databases:
+
+`npm run setup-dbs`
+
+6. Next step is to seed the databases:
+
+`npm run seed`
+
+7. To run all the tests use the following command:
+
+`npm test`
+
 The project uses a `nc-news` and `nc-news-test` as defaults but feel free to change the name of the databases. You are also provided with two sets of data (one for testing one for development).
 
 You should be all set. Continue to the next section to see some usage examples for this api.
@@ -34,12 +58,39 @@ You should be all set. Continue to the next section to see some usage examples f
 
 ### API Usage
 
-1. Get a list with topics + description
+1. Get a list with all the available endpoints
+   `GET /api`
+
+2. Get a list with topics + description
 
 `GET /api/topics`
 
-2. Get a list of all the articles (title, author, date when the article was created, topic, the content of the article, votes and the current comment count)
+3. Get a list of all the articles (title, author, date when the article was created, topic, the content of the article, votes and the current comment count)
 
 `GET /api/articles`
+
+4. Serves an array of all topics
+
+`GET /api/articles`
+
+5. Serves an array with the corresponding article
+
+`GET /api/articles/:article_id`
+
+6. Updates the comment count for an article and serves an article with an updated comment count
+
+`PATCH /api/articles/:article_id`
+
+7. Serves an array of all the comments for a specific article
+
+`GET /api/articles/:article_id/comments`
+
+8. Adds a new comment to an existing article and an array with the newly added comment
+
+`POST /api/articles/:article_id/comments`
+
+9. Deletes the specified comment if exists, return no content
+
+`DELETE /api/comments/:comment_id`
 
 ---
