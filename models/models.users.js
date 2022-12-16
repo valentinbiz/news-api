@@ -10,4 +10,15 @@ const selectUsers = () => {
   });
 };
 
-module.exports = { selectUsers };
+const selectUserByUsername = (username) => {
+  const queryString = `
+  SELECT * FROM users
+  WHERE username = $1;
+  `;
+
+  return db.query(queryString, [username]).then(({ rows }) => {
+    return rows;
+  });
+};
+
+module.exports = { selectUsers, selectUserByUsername };

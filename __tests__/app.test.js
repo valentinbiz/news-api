@@ -313,6 +313,30 @@ describe("API testing", () => {
           });
       });
     });
+    describe("GET /api/users/:username", () => {
+      test("200: Should return with an object with the correct user, containing all the necessary properties", () => {
+        return request(app)
+          .get("/api/users/rogersop")
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toMatchObject(
+              expect.objectContaining({
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String),
+              })
+            );
+          });
+      });
+      test("404: It should return an error when the id is valid but non-existent", () => {
+        return request(app)
+          .get("/api/users/mitchno1fan")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+    });
   });
   describe("2. POST methods", () => {
     describe("POST /api/articles/:article_id/comments", () => {
