@@ -35,19 +35,13 @@ const insertComment = (articleId, body, username) => {
 };
 
 const deleteCommentById = (commentId) => {
-  const presentSQL = "SELECT comment_id FROM comments WHERE comment_id = $1;";
-  return db.query(presentSQL, [commentId]).then((presentResponse) => {
-    if (presentResponse.rowCount === 0) {
-      return Promise.reject({ status: 404, msg: "not found" });
-    }
-    const queryString = `
+  const queryString = `
   DELETE FROM comments
   WHERE comment_id = $1
   RETURNING *;
   `;
-    return db.query(queryString, [commentId]).then(({ rows }) => {
-      return rows;
-    });
+  return db.query(queryString, [commentId]).then(({ rows }) => {
+    return rows;
   });
 };
 

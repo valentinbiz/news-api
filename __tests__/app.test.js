@@ -410,7 +410,7 @@ describe("API testing", () => {
   });
   describe("4. DELETE methods", () => {
     describe("DELETE /api/comments/:comment_id", () => {
-      test("204: restaurant id did exist, and then is removed", () => {
+      test("204: comment id did exist and it is removed, returns no content", () => {
         return request(app)
           .delete("/api/comments/2")
           .expect(204)
@@ -422,16 +422,16 @@ describe("API testing", () => {
         return request(app)
           .delete("/api/comments/three")
           .expect(400)
-          .then((response) => {
-            expect(response.body.msg).toBe("Bad request");
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
           });
       });
-      test("404: restaurant does not exist, returns not found", () => {
+      test("404: comment does not exist, returns not found", () => {
         return request(app)
           .delete("/api/comments/300")
           .expect(404)
-          .then((response) => {
-            expect(response.body.msg).toBe("not found");
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
           });
       });
     });
