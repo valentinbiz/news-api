@@ -7,28 +7,33 @@ const {
   selectCommentsByArticleId,
   insertComment,
 } = require("../models/models.comments");
-const { checkIfIdExists } = require("../models/models.id");
+const { checkIfItemExists } = require("../models/models.id");
 
 const getArticles = (request, response, next) => {
-  selectArticles()
-    .then((articles) => response.status(200).send({ articles }))
-    .catch((error) => next(error));
+  const { sort_by, order, topic } = request.query;
+  const promises = [selectArticles(sort_by, order, topic)];
+  if (topic !== undefined) promises.push(checkIfItemExists("topic", topic));
+  Promise.all(promises)
+    .then(([articles]) => {
+      response.status(200).send({ articles });
+    })
+    .catch(next);
 };
 
 const getArticleById = (request, response, next) => {
   const articleId = request.params.article_id;
   selectArticleById(articleId)
     .then((article) => response.status(200).send({ article }))
-    .catch((error) => next(error));
+    .catch(next);
 };
 
 const getCommentsByArticleId = (request, response, next) => {
   const articleId = request.params.article_id;
   const promises = [selectCommentsByArticleId(articleId)];
-  promises.push(checkIfIdExists(articleId));
+  promises.push(checkIfItemExists("article_id", articleId));
   Promise.all(promises)
     .then(([comments]) => response.status(200).send({ comments }))
-    .catch((error) => next(error));
+    .catch(next);
 };
 
 const postComment = (request, response, next) => {
@@ -36,7 +41,7 @@ const postComment = (request, response, next) => {
   const articleId = request.params.article_id;
   insertComment(articleId, body, username)
     .then((comment) => response.status(201).send({ comment }))
-    .catch((error) => next(error));
+    .catch(next);
 };
 
 const patchArticleVotes = (request, response, next) => {
@@ -44,7 +49,7 @@ const patchArticleVotes = (request, response, next) => {
   const articleId = request.params.article_id;
   updateVotes(articleId, inc_votes)
     .then(({ rows }) => response.status(200).send({ article: rows[0] }))
-    .catch((error) => next(error));
+    .catch(next);
 };
 
 module.exports = {

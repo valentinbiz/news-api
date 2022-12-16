@@ -39,36 +39,41 @@ describe("API testing", () => {
     });
     describe("GET /api/articles", () => {
       describe("Basic behaviour", () => {
-        test("200: Should return with an array of articles, sorted by date in ascending order", () => {
-          return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).toBeInstanceOf(Array);
-              expect(articles).toHaveLength(12);
-              expect(articles).toBeSortedBy("created_at", { descending: true });
-            });
-        });
-        test("200: All the objects in the array will have the following properties: author, title, article_id, topic, created_at, votes, comment_count.", () => {
-          return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-              expect(articles).toHaveLength(12);
-              articles.forEach((article) => {
-                expect(article).toEqual(
-                  expect.objectContaining({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    comment_count: expect.any(Number),
-                  })
-                );
+        describe("Basic behaviour", () => {
+          test("200: Should return with an array of articles, sorted by date in ascending order", () => {
+            return request(app)
+              .get("/api/articles")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toBeInstanceOf(Array);
+                expect(articles).toHaveLength(12);
+                expect(articles).toBeSortedBy("created_at", {
+                  descending: true,
+                });
               });
-            });
+          });
+          test("200: All the objects in the array will have the following properties: author, title, article_id, topic, created_at, votes, comment_count.", () => {
+            return request(app)
+              .get("/api/articles")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles).toHaveLength(12);
+                expect(articles).toHaveLength(12);
+                articles.forEach((article) => {
+                  expect(article).toEqual(
+                    expect.objectContaining({
+                      author: expect.any(String),
+                      title: expect.any(String),
+                      article_id: expect.any(Number),
+                      topic: expect.any(String),
+                      created_at: expect.any(String),
+                      votes: expect.any(Number),
+                      comment_count: expect.any(Number),
+                    })
+                  );
+                });
+              });
+          });
         });
         test("200: The values of the comment_count for each article will accuratley match the one we get from the test data", () => {
           return request(app)
@@ -140,9 +145,9 @@ describe("API testing", () => {
         test("404: sent a non existent topic", () => {
           return request(app)
             .get("/api/articles?topic=paper")
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Not found!");
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).toEqual([]);
             });
         });
         test("404: sent a non existent topic", () => {
@@ -155,7 +160,7 @@ describe("API testing", () => {
         });
       });
     });
-    describe.only("GET /api/articles/:article_id", () => {
+    describe("GET /api/articles/:article_id", () => {
       test("200: Should return with an object with the correct article, containing all the necessary properties", () => {
         return request(app)
           .get("/api/articles/1")
