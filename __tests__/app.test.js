@@ -505,6 +505,86 @@ describe("API testing", () => {
           });
       });
     });
+    describe("PATCH /api/comments/:comment_id", () => {
+      test("200: Comment votes updated successfully, return the updated comment object", () => {
+        const votesUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(votesUpdate)
+          .expect(200)
+          .then(({ body: { updatedComment } }) => {
+            expect(updatedComment).toMatchObject(
+              expect.objectContaining({
+                body: expect.any(String),
+                author: expect.any(String),
+                comment_id: 1,
+                created_at: expect.any(String),
+                votes: 19,
+              })
+            );
+          });
+      });
+      test("200: Comment updated successfully, with negative values in case the update takes vote count below 0", () => {
+        const votesUpdate = { inc_votes: -30 };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(votesUpdate)
+          .expect(200)
+          .then(({ body: { updatedComment } }) => {
+            expect(updatedComment.votes).toBe(-14);
+          });
+      });
+      test("400: No increment value provided, return bad request", () => {
+        const votesUpdate = {};
+        return request(app)
+          .patch("/api/comments/1")
+          .send(votesUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("400: Invalid inc_votes type provided, return bad request", () => {
+        const votesUpdate = { inc_votes: "three" };
+        return request(app)
+          .patch("/api/comments/1")
+          .send(votesUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("400: It should return an error when the id provided is of invalid type", () => {
+        const votesUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/comments/three")
+          .send(votesUpdate)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("404: Valid article id but non existent in the db, return not found", () => {
+        const votesUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/comments/999")
+          .send(votesUpdate)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+      test("404: Wrong path provided, return not found", () => {
+        const votesUpdate = { inc_votes: 3 };
+        return request(app)
+          .patch("/api/commentsss/1")
+          .send(votesUpdate)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found!");
+          });
+      });
+    });
   });
   describe("4. DELETE methods", () => {
     describe("DELETE /api/comments/:comment_id", () => {
